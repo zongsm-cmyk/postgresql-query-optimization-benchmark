@@ -66,16 +66,22 @@ If your PostgreSQL database, API endpoints, or LLM-integrated backend are suffer
 - High database CPU saturation and connection pool starvation
 - Cascading failovers without automated retry layers
 
-### 🛠️ Production Latency Rescue & Optimization Package ($95)
+### 🛠️ Production Latency Rescue & Optimization Package ( - )
 We provide a comprehensive, 24-48 hour turnaround engineering audit:
 - Deep EXPLAIN ANALYZE profiling of your top 10 bottleneck queries
-- Zero-downtime indexing migration scripts (`CREATE INDEX CONCURRENTLY`)
+- Zero-downtime indexing migration scripts (CREATE INDEX CONCURRENTLY)
 - Connection pool sizing and transaction isolation configuration
 - Universal failover routing & API reliability layer
 
-### Instant Checkout Options ( USD Fixed):
-* Fast-Track Direct PayPal (Instant 1-Click Confirmation): https://paypal.me/asskoure/95 (Verified Merchant: MHAMED ASKOURE / askgsm@live.fr)
-* Standard Gumroad Desk: [Book via Gumroad Checkout](https://mhamedasskoure.gumroad.com/l/python-api-llm-failover-setup)
-* Direct Technical Dispatch: Email askgsm@live.fr with your slow-query logs.
+### 🛒 Instant Commercial Checkout Options:
+> [!TIP]
+> 🔥 **Developer Launch Special:** Use code **LAUNCH30** at checkout for **30% OFF** the 24h Setup Package (.50).
+
+* ⚡ ** — Full Resilience & Failover Setup:** [Instant PayPal ()](https://paypal.me/asskoure/95) | [Buy on Gumroad (.50 w/ LAUNCH30)](https://mhamedasskoure.gumroad.com/l/python-api-llm-failover-setup/LAUNCH30)
+* 🚀 ** — PostgreSQL Query Latency Optimization:** [Instant PayPal ()](https://paypal.me/asskoure/129)
+* 🎯 ** — Production pgvector & RAG Rescue Suite:** [Instant PayPal ()](https://paypal.me/asskoure/199)
+* 🛡️ **Live Open-Source Benchmark Suite:** [View Full Repository on GitHub](https://github.com/zongsm-cmyk/llm-reliability-rescue-demo)
+
+*(Verified Merchant: **MHAMED ASKOURE** | Email: skgsm@live.fr | Delivery SLA: Automated dispatch within 15 minutes of payment).*
 
 *Engineered by Mhamed Askoure — Principal Systems Architect (zongsm-cmyk)*
