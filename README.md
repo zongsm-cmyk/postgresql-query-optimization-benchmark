@@ -1,87 +1,67 @@
-# PostgreSQL Production Query Optimization Benchmark & Latency Rescue Blueprint
+# PostgreSQL Slow-Query Audit — Fixed-Scope B2B Service
 
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14%2B%20%7C%2015%20%7C%2016-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Performance](https://img.shields.io/badge/Latency%20Reduction-94.2%25-brightgreen)](https://github.com/zongsm-cmyk/postgresql-query-optimization-benchmark)
-[![Production Verified](https://img.shields.io/badge/Dataset-12.4M%20Rows-orange)](https://github.com/zongsm-cmyk/postgresql-query-optimization-benchmark)
-[![Engineering Audit](https://img.shields.io/badge/Consulting-$95%20Audit%20Rescue-blue)](https://mhamedasskoure.gumroad.com/l/python-api-llm-failover-setup)
+Independent technical work by **Mhamed Askoure** · Python / PostgreSQL · Remote from Morocco.
 
-A reproducible, battle-tested engineering case study demonstrating how a high-throughput B2B SaaS telemetry backend reduced database query latency from **1,480ms down to 86ms (-94.2%)** and eliminated I/O buffer thrashing on a **12.4 million row table** using targeted indexing, query restructuring, and connection pool optimization.
+**Commercial offer:** A fixed-price **$300 PostgreSQL query-performance audit**, with a written report delivered within **48 hours after** we agree the scope and receive suitable sanitized diagnostics. No production database credentials needed by email.
 
----
+**Request an audit:** [Email zongsm@gmail.com](mailto:zongsm@gmail.com?subject=PostgreSQL%20Slow%20Query%20Audit%20-%20%24300)
 
-## 📊 Benchmark Summary: Before vs. After Optimization
+## Who this is for
 
-| Metric | Before Optimization (Unindexed / Naive) | After Optimization (Covering + Partial Index) | Improvement |
-| :--- | :--- | :--- | :--- |
-| **Execution Time (p95)** | **1,482.4 ms** | **85.8 ms** | **-94.2%** ⚡ |
-| **Execution Time (p99)** | **2,840.1 ms** | **112.4 ms** | **-96.0%** 🚀 |
-| **Buffer Hits (I/O)** | 84,210 shared hits | 142 shared hits | **-99.8% I/O load** |
-| **Plan Type** | Parallel Seq Scan + External Hash Join | Index Scan using `idx_telemetry_pending_covering` | Deterministic Memory Scan |
-| **CPU Saturation** | 88% across 4 vCPUs | 7% across 4 vCPUs | **92% headroom recovered** |
+SaaS, data engineering and API teams experiencing slow SQL endpoints, excessive full-table scans, suboptimal indexes, large PostgreSQL CPU/I/O use, or increased latency under load.
 
----
+**Audit scope ($300 fixed):**
 
-## 🔍 The Root Cause Analysis
+1. Review up to **three** slow SQL queries, related schemas/index definitions, and sanitized `EXPLAIN (ANALYZE, BUFFERS)` output.
+2. Identify likely plan, cardinality, index, parameter and locking bottlenecks supported by the supplied evidence.
+3. Deliver a short written report with prioritized recommendations, sample query/index changes, trade-offs, validation commands, and rollback considerations.
+4. Provide one asynchronous Q&A round. Any hands-on production deployment, access to sensitive data, or more than three queries is scoped and priced separately.
 
-In high-concurrency production applications (FastAPI, Django, Node.js, Phoenix), slow queries rarely stem from simple missing primary keys. Instead, they cascade from:
-1. **Implicit Type Casting:** Forcing PostgreSQL to abandon B-tree indexes due to UUID/varchar mismatched types in ORM queries.
-2. **Compound Index Column Order Antipatterns:** Placing high-cardinality timestamps before low-cardinality status predicates, rendering the index useless for prefix filtering.
-3. **Bloated Table Scans on Soft-Deleted Data:** Tables with `deleted_at IS NULL` scanning millions of dead records instead of utilizing **Partial Indexes**.
-4. **SELECT * Overhead:** Forcing heap lookups for wide JSONB and text columns rather than using **Covering Indexes (`INCLUDE` clause)**.
+**Commercial terms:** A funded milestone or an agreed payment method (PayPal or bank) is established **before** starting; no promise of savings or percentage improvements without controlled measurement. Acceptance is based on the agreed written deliverables.
 
----
+## Demonstration: multi-tenant telemetry query
 
-## 🛠️ The Architecture Blueprint & Solution
+Consider an event table with millions of rows, multiple tenants and a mostly processed status field. A common application query is:
 
-### 1. The Naive (Bloated) Schema & Query
 ```sql
--- Naive query triggering full table scan across 12M rows:
 SELECT id, tenant_id, event_type, payload, created_at
 FROM event_telemetry
-WHERE tenant_id = 'c8b3e811-92b7-4e92-bc12-fef49b8192a0'
+WHERE tenant_id = $1
   AND status = 'pending'
   AND created_at >= NOW() - INTERVAL '7 days'
 ORDER BY created_at DESC
 LIMIT 50;
 ```
 
-### 2. The Optimized Covering Partial Index
+An index worth **testing**, conditional on the actual data distribution and query plans:
+
 ```sql
--- 1. Create targeted partial index filtering out processed records (95% table size reduction):
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_telemetry_pending_covering
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_telemetry_pending_tenant_created
 ON event_telemetry (tenant_id, created_at DESC)
 INCLUDE (id, event_type)
 WHERE status = 'pending';
 
--- 2. Analyze statistics to ensure planner accuracy:
 ANALYZE event_telemetry;
 ```
 
----
+**Why test, rather than blindly deploy?** PostgreSQL may still visit the heap for `payload`; covering large `payload` columns could make the index expensive. Index selectivity, write amplification, table bloat, permissions, active transactions and maintenance overhead must be checked. For minimal downtime, `CREATE INDEX CONCURRENTLY` is run outside a transaction block, with a cleanup plan for failed index builds.
 
-## 💼 Need Production Latency Rescue or Database Architecture Audit?
+### Evidence and performance claims
 
-If your PostgreSQL database, API endpoints, or LLM-integrated backend are suffering from:
-- 504 Gateway Timeouts during peak traffic
-- High database CPU saturation and connection pool starvation
-- Cascading failovers without automated retry layers
+This repository provides a **technical design and SQL illustration**, **not** independently validated client production evidence. Historical p95/p99/CPU numbers used in an earlier README have not been substantiated here by a reproducible dataset, raw test logs and execution-plan receipts, so they are not offered as measured business outcomes. Any improvement for a client must be measured **before and after** under comparable load, with a recorded baseline.
 
-### 🛠️ Production Latency Rescue & Optimization Package ( - )
-We provide a comprehensive, 24-48 hour turnaround engineering audit:
-- Deep EXPLAIN ANALYZE profiling of your top 10 bottleneck queries
-- Zero-downtime indexing migration scripts (CREATE INDEX CONCURRENTLY)
-- Connection pool sizing and transaction isolation configuration
-- Universal failover routing & API reliability layer
+### Related public work
 
-### 🛒 Instant Commercial Checkout Options:
-> [!TIP]
-> 🔥 **Developer Launch Special:** Use code **LAUNCH30** at checkout for **30% OFF** the 24h Setup Package (.50).
+- [PostgreSQL Data Manager (Python / SSH / database operations)](https://github.com/zongsm-cmyk/kaggle_postgre_challenge)
+- [Python / FastAPI API reliability work](https://github.com/zongsm-cmyk/llm-reliability-rescue-demo)
 
-* ⚡ ** — Full Resilience & Failover Setup:** [Instant PayPal ()](https://paypal.me/asskoure/95) | [Buy on Gumroad (.50 w/ LAUNCH30)](https://mhamedasskoure.gumroad.com/l/python-api-llm-failover-setup/LAUNCH30)
-* 🚀 ** — PostgreSQL Query Latency Optimization:** [Instant PayPal ()](https://paypal.me/asskoure/129)
-* 🎯 ** — Production pgvector & RAG Rescue Suite:** [Instant PayPal ()](https://paypal.me/asskoure/199)
-* 🛡️ **Live Open-Source Benchmark Suite:** [View Full Repository on GitHub](https://github.com/zongsm-cmyk/llm-reliability-rescue-demo)
+## Start with a paid diagnosis
 
-*(Verified Merchant: **MHAMED ASKOURE** | Email: skgsm@live.fr | Delivery SLA: Automated dispatch within 15 minutes of payment).*
+Email **zongsm@gmail.com** with:
 
-*Engineered by Mhamed Askoure — Principal Systems Architect (zongsm-cmyk)*
+- PostgreSQL major version and hosting environment.
+- A brief description of the affected workload and success criterion.
+- Up to 3 sanitized queries, `EXPLAIN (ANALYZE, BUFFERS)` plans and relevant indexes (redact PII, credentials and confidential literals).
+- Whether a 48-hour written audit for $300 matches your budget.
+
+I'll confirm fit, written scope, acceptance criteria, payment arrangement, and the start time before requesting any work.
