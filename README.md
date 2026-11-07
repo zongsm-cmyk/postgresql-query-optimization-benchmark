@@ -65,3 +65,5 @@ Email **zongsm@gmail.com** with:
 - Whether a 48-hour written audit for $300 matches your budget.
 
 I'll confirm fit, written scope, acceptance criteria, payment arrangement, and the start time before requesting any work.
+
+**Payment after scope approval:** [PayPal.Me (official receiving link)](https://paypal.me/asskoure) or an agreed CIH bank transfer. **Do not pay until** the written scope and amount are confirmed. No Stripe account or subscription is required.
